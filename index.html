@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar Sizing Calculator | phæntom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#f2f5f7;--card:#fff;--ink:#0f1b26;--mute:#566474;--line:#d8e0e7;--acc:#c77700;--accbg:#fff3dc;--btn:#0f1b26;--btnt:#fff;--ok:#0b7a55;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c141c;--card:#14212c;--ink:#e9eff4;--mute:#9fb0bf;--line:#26384a;--acc:#f2a413;--accbg:#2b2210;--btn:#f2a413;--btnt:#0c141c;--ok:#3ccf98}}
+:root[data-theme="dark"]{--bg:#0c141c;--card:#14212c;--ink:#e9eff4;--mute:#9fb0bf;--line:#26384a;--acc:#f2a413;--accbg:#2b2210;--btn:#f2a413;--btnt:#0c141c;--ok:#3ccf98}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Barlow Semi Condensed",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--ink);z-index:10}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--ink);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bar b{font-size:20px;letter-spacing:.2px}
+.live{text-align:right;line-height:1.1}
+.live strong{font-size:30px;font-weight:700;color:#f2a413;font-variant-numeric:tabular-nums}
+.live span{display:block;font-size:13px;opacity:.8}
+main{max-width:720px;margin:0 auto;padding:16px 14px 40px}
+h1{font-size:28px;line-height:1.15;margin:8px 0 6px}
+h2{font-size:20px;margin:26px 0 8px}
+p.lead{color:var(--mute);margin:0 0 6px;max-width:60ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:end;padding:12px 0;border-bottom:1px solid var(--line)}
+.row .nmi{grid-column:1/3}
+.f{display:block;font-weight:400;font-size:13px;color:var(--mute);margin:0}
+.f input{margin-top:2px}
+.mt{grid-column:1/4;display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;color:var(--mute);margin:0}
+.mt input{width:20px;min-height:20px;margin:0}
+.rm{background:transparent;color:var(--ink);border:1px solid var(--line);min-height:44px;padding:0 10px}
+
+.row:last-child{border-bottom:0}
+.none{color:var(--mute);padding:12px 0}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;width:100%;min-height:44px}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opts{display:grid;gap:12px;padding:12px 0}
+label{display:block;font-weight:600;margin-bottom:4px}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;min-height:46px;padding:10px 16px;cursor:pointer}
+.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);margin-top:10px;width:100%}
+.res{display:grid;gap:10px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.box h3{margin:0 0 4px;font-size:17px}
+.big{font-size:26px;font-weight:700;line-height:1.1}
+.sub{color:var(--mute);font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.price{margin-top:6px;color:var(--ok);font-weight:700;font-size:18px}
+.wa{display:block;text-align:center;text-decoration:none;background:var(--btn);color:var(--btnt);border-radius:10px;padding:14px;font-weight:700;font-size:18px;margin-top:12px}
+.note{font-size:14px;color:var(--mute);margin-top:14px;max-width:62ch}
+.err{color:#c0392b;font-weight:600}
+.empty{background:var(--accbg);border:1px dashed var(--acc);border-radius:10px;padding:14px}
+footer{text-align:center;color:var(--mute);font-size:14px;padding:10px 14px 30px}
+</style>
+</head>
+<body>
+<div class="bar"><b>phæntom</b><div class="live" aria-live="polite"><strong id="kwh">0.0</strong><span>kWh per day · <span id="watts" style="display:inline">0</span> W running</span></div></div>
+<main>
+<h1>How big a solar system do you need?</h1>
+<p class="lead">Tick off what you power at home or in your shop. You get inverter, battery and panel sizes with a rough Naira price, ready to send to us on WhatsApp for an exact quote.</p>
+
+<h2>1. Your appliances</h2>
+<div class="card" id="list"><div class="none" id="none">No appliances yet. Choose one below to add it.</div></div>
+<label for="pick" style="margin-top:12px">Add an appliance</label>
+<select id="pick"></select>
+<div id="cerr" class="err" role="alert"></div>
+
+<h2>2. How you want to use it</h2>
+<div class="card opts">
+<div><label for="bk">How much should the battery carry?</label>
+<select id="bk"><option value="" disabled selected>Choose one</option><option value="1">Everything, all day and night</option><option value="0.6">Night and light cuts (about 60%)</option><option value="0.3">Short power cuts only (about 30%)</option></select></div>
+<div><label for="ov">How much runs at the same time?</label>
+<select id="ov"><option value="" disabled selected>Choose one</option><option value="1">All of it together</option><option value="0.8">Most of it (about 80%)</option><option value="0.6">Some of it (about 60%)</option></select></div>
+<div><label for="nm">Your name (optional)</label><input id="nm" type="text" maxlength="40" autocomplete="name"></div>
+<div><label for="lc">Your area (optional)</label><input id="lc" type="text" maxlength="40" placeholder="e.g. Ikorodu, Lagos"></div>
+</div>
+
+<h2>3. Your system</h2>
+<div id="out"></div>
+<p class="note">These are planning estimates for common Nigerian setups: 4.5 peak sun hours, 550 W panels and standard inverter sizes. Prices are rough market ranges and change with the Naira and brand. A site visit and a supplier quote confirm the final system and price.</p>
+</main>
+<footer>phæntom · Solar, security and project kits</footer>
+<script>
+"use strict";
+const WA="2347078653332";
+const APP=[["LED bulb",10,6],["Ceiling fan",75,8],["Standing fan",60,8],["TV (32 to 43 inch)",80,6],["Decoder",20,6],["Laptop",65,6],["Desktop computer",200,6],["Phone charging",10,3],["Wi-Fi router",10,24],["Fridge (medium)",150,10,1],["Freezer",250,10,1],["Water pump (0.5 hp)",400,1,1],["Air conditioner (1 hp)",900,6,1],["Air conditioner (1.5 hp)",1300,6,1],["Washing machine",500,1,1],["Microwave",1000,0.5],["Electric iron",1000,0.5],["Blender",400,0.3],["Water dispenser",100,4],["Sound system",100,4],["CCTV system (4 to 8 cameras)",60,24],["Security light",30,10]];
+const P={panelW:550,panel:130000,inv:{1:120000,1.5:180000,2.5:280000,3.5:380000,5:500000,7.5:800000,10:1100000,15:1500000},li:200000,tu:85000,extra:0.15,lo:0.85,hi:1.2};
+const SZ=[1,1.5,2.5,3.5,5,7.5,10,15],MPPT=[20,30,40,60,80,100,120];
+let rows=[];
+const $=id=>document.getElementById(id);
+const num=(v,a,b)=>{const n=parseFloat(v);return isNaN(n)?0:Math.min(b,Math.max(a,n))};
+const clean=s=>String(s).replace(/[^a-zA-Z0-9 .()\-]/g,"").trim().slice(0,40);
+const naira=x=>"₦"+(Math.round(x/10000)*10000).toLocaleString("en-US");
+const pick=$("pick");
+function opt(t,v,dis){const o=document.createElement("option");o.textContent=t;o.value=v;if(dis){o.disabled=true;o.selected=true}return o}
+pick.appendChild(opt("Choose an appliance","",true));
+APP.forEach((a,i)=>pick.appendChild(opt(a[0]+" ("+a[1]+" W)",String(i))));
+pick.appendChild(opt("Other (type your own)","other"));
+function field(label,type,attrs,val){
+ const l=document.createElement("label");l.className="f";const s=document.createElement("span");s.textContent=label;
+ const i=document.createElement("input");i.type=type;Object.keys(attrs).forEach(k=>i.setAttribute(k,attrs[k]));i.value=val;
+ l.append(s,i);return[l,i];
+}
+function addRow(n,w,h,m,q){
+ const d=document.createElement("div");d.className="row";
+ const ni=document.createElement("input");ni.type="text";ni.maxLength=30;ni.value=n;ni.placeholder="Appliance name";ni.className="nmi";ni.setAttribute("aria-label","Appliance name");
+ const rm=document.createElement("button");rm.type="button";rm.className="rm";rm.textContent="Remove";rm.setAttribute("aria-label","Remove this appliance");
+ const[wl,wi]=field("Watts","number",{inputmode:"numeric",min:1,max:10000},w);
+ const[ql,qi]=field("How many","number",{inputmode:"numeric",min:1,max:50},q);
+ const[hl,hi]=field("Hours a day","number",{inputmode:"decimal",min:0.1,max:24,step:0.1},h);
+ const ml=document.createElement("label");ml.className="mt";const mi=document.createElement("input");mi.type="checkbox";mi.checked=!!m;
+ ml.append(mi,document.createTextNode("Has a motor or compressor (fridge, pump, AC)"));
+ d.append(ni,rm,wl,ql,hl,ml);
+ const r={d,n:ni,w:wi,q:qi,h:hi,m:mi};
+ [ni,wi,qi,hi,mi].forEach(i=>{i.addEventListener("input",calc);i.addEventListener("change",calc)});
+ rm.addEventListener("click",()=>{rows=rows.filter(x=>x!==r);d.remove();calc()});
+ $("list").appendChild(d);rows.push(r);return r;
+}
+pick.addEventListener("change",()=>{
+ const v=pick.value;
+ if(v==="other"){const r=addRow("","","","",1);r.n.focus()}
+ else{const a=APP[+v];if(a)addRow(a[0],a[1],a[2],a[3],1)}
+ pick.selectedIndex=0;calc();
+});
+["bk","ov"].forEach(i=>$(i).addEventListener("change",calc));
+let last=null;
+function used(){
+ return rows.map(r=>({n:clean(r.n.value)||"Appliance",w:Math.round(num(r.w.value,0,10000)),q:Math.round(num(r.q.value,0,50)),h:num(r.h.value,0,24),m:r.m.checked})).filter(x=>x.w>0&&x.q>0&&x.h>0);
+}
+function calc(){
+ $("none").style.display=rows.length?"none":"block";
+ const u=used();let wh=0,run=0,mot=0;
+ u.forEach(x=>{wh+=x.w*x.q*x.h;run+=x.w*x.q;if(x.m)mot=Math.max(mot,x.w)});
+ $("kwh").textContent=(wh/1000).toFixed(1);$("watts").textContent=Math.round(run).toLocaleString("en-US");
+ const out=$("out");out.textContent="";
+ const msg=t=>{const e=document.createElement("div");e.className="empty";e.textContent=t;out.appendChild(e)};
+ if(wh<=0){last=null;msg("Add an appliance and fill in its watts, how many and hours a day. Your system size appears here.");return}
+ if(!$("bk").value||!$("ov").value){last=null;msg("Choose how much the battery should carry and how much runs at the same time (section 2).");return}
+ const ov=parseFloat($("ov").value),bk=parseFloat($("bk").value);
+ const runO=run*ov,startW=runO+2*mot;
+ const needKva=Math.max(runO/0.8*1.2/1000,startW/1600);
+ const kva=SZ.find(s=>s>=needKva)||SZ[SZ.length-1];
+ const over=needKva>SZ[SZ.length-1];
+ const V=kva<=1.5?12:kva<=3.5?24:48;
+ const arrW=wh/(4.5*0.75),np=Math.ceil(arrW/P.panelW),tot=np*P.panelW;
+ const amps=MPPT.find(a=>a>=tot/V*1.25)||MPPT[MPPT.length-1];
+ const need=wh*bk;
+ const liWh=need/(0.9*0.95),tuWh=need/(0.5*0.85);
+ const liAh=Math.ceil(liWh/V/50)*50,tuAh=Math.ceil(tuWh/V/50)*50;
+ const liPk=Math.ceil(liAh/100),tuN=Math.ceil(tuAh/200)*(V/12);
+ const base=np*P.panel+P.inv[kva];
+ const cost=(b,pr)=>{const t=(base+b*pr)*(1+P.extra);return naira(t*P.lo)+" to "+naira(t*P.hi)};
+ const liK=liAh*V/1000,tuK=tuAh*V/1000;
+ const liC=cost(liK,P.li),tuC=cost(tuK,P.tu);
+ last={u,wh,kva,V,np,liAh,tuAh,liC,tuC};
+ const box=(t,big,sub)=>{const b=document.createElement("div");b.className="box";const h=document.createElement("h3");h.textContent=t;const g=document.createElement("div");g.className="big";g.textContent=big;const s=document.createElement("div");s.className="sub";s.textContent=sub;b.append(h,g,s);return b};
+ const res=document.createElement("div");res.className="res";
+ res.appendChild(box("Inverter",kva+" kVA","System voltage "+V+" V. Sized for "+Math.round(runO)+" W running plus motor start-up."));
+ res.appendChild(box("Solar panels",np+" × "+P.panelW+" W","About "+tot.toLocaleString("en-US")+" W of panels. Needs a "+amps+" A MPPT controller unless your hybrid inverter has one built in."));
+ const two=document.createElement("div");two.className="two";
+ const a=box("Lithium battery",liAh+" Ah at "+V+" V","About "+liK.toFixed(1)+" kWh, or "+liPk+" × 100 Ah pack"+(liPk>1?"s":"")+". Longer life, higher cost.");
+ const pa=document.createElement("div");pa.className="price";pa.textContent="Rough total: "+liC;a.appendChild(pa);
+ const b=box("Tubular battery",tuAh+" Ah at "+V+" V","About "+tuK.toFixed(1)+" kWh, or "+tuN+" × 12 V 200 Ah. Lower cost, shorter life.");
+ const pb=document.createElement("div");pb.className="price";pb.textContent="Rough total: "+tuC;b.appendChild(pb);
+ two.append(a,b);res.appendChild(two);
+ if(over)msg("This load is above our largest standard size. Send it to us and we will split it into a custom design.");
+ const wa=document.createElement("a");wa.className="wa";wa.href=link();wa.target="_blank";wa.rel="noopener";wa.textContent="Send this to phæntom on WhatsApp";
+ out.prepend(res);res.appendChild(wa);
+}
+function link(){
+ const L=last;if(!L)return"#";
+ const items=L.u.map(x=>"- "+x.n+" ("+x.w+" W) x"+x.q+", "+x.h+" h/day");
+ const nm=clean($("nm").value),lc=clean($("lc").value);
+ const t=["Hello phæntom, I used your solar calculator."+(nm?" My name is "+nm+".":"")+(lc?" Location: "+lc+".":""),"","My appliances:",...items,"","Daily use: "+(L.wh/1000).toFixed(1)+" kWh","Suggested: "+L.kva+" kVA inverter ("+L.V+" V), "+L.np+" x "+P.panelW+" W panels","Lithium option: "+L.liAh+" Ah at "+L.V+" V, rough "+L.liC,"Tubular option: "+L.tuAh+" Ah at "+L.V+" V, rough "+L.tuC,"","Please send me an exact quote."].join("\n");
+ return"https://wa.me/"+WA+"?text="+encodeURIComponent(t);
+}
+$("nm").addEventListener("input",calc);$("lc").addEventListener("input",calc);
+calc();
+</script>
+</body>
+</html>
