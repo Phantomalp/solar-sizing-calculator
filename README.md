@@ -2,7 +2,7 @@
 
 A free, single-page web tool that helps homeowners and shop owners in Nigeria estimate the solar system they need. The user lists their appliances and gets a suggested inverter, panel count, charge controller and battery bank, plus a rough Naira price range, then can send the result straight to a WhatsApp number for an exact quote.
 
-**Live demo:** https://github.com/Phantomalp/solar-sizing-calculator.
+**Live demo:** https://github.com/Phantomalp/solar-sizing-calculator.git
 
 ## Why I built it
 
